@@ -66,7 +66,7 @@ class MainWidget extends StatelessWidget {
         FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).primaryColor,
         body: StatsScreen(),
       ),
     );

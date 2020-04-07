@@ -1,17 +1,26 @@
+import 'dart:async';
+
+import 'package:covid19/data/models/danger_zone.dart';
 import 'package:covid19/data/source/data_source_repository.dart';
 import 'package:covid19/screens/base/base_bloc.dart';
 
-import 'map_events.dart';
 
-class MapBloc extends BaseBloc<MapEvent> {
-  MapBloc(DataSourceRepository repository) : super(repository);
+class MapBloc extends BaseBloc {
+
+  final _zoneList = StreamController<List<DangerZone>>();
+
+  Stream<List<DangerZone>> get zoneListObservable => _zoneList.stream;
+
+  MapBloc(DataSourceRepository repository) : super(repository) {
+    addController(_zoneList);
+  }
 
   void listZones() async {
     try {
       var zones = await repository.listDangerZones();
-      addEvent(OnDataEvent(zones));
+      _zoneList.sink.add(zones);
     } catch (error) {
-      addEvent(OnErrorEvent("Error"));
+      print("ASCT: ${error.toString()}");
     }
   }
 }

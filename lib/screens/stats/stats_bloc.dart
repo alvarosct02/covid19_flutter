@@ -5,17 +5,20 @@ import 'package:covid19/data/source/data_source_repository.dart';
 import 'package:covid19/screens/base/base_bloc.dart';
 import 'package:intl/intl.dart';
 
-import 'stats_events.dart';
+class StatsBloc extends BaseBloc {
+  final _statList = StreamController<List<Stats>>();
+  final _selected = StreamController<Stats>();
 
-class StatsBloc extends BaseBloc<StatsEvent> {
-  StatsBloc(DataSourceRepository repository) : super(repository);
+  Stream<List<Stats>> get statListObservable => _statList.stream;
+  Stream<Stats> get selectedObservable => _selected.stream;
 
-  final _selectedStatQueue = StreamController<Stats>();
-  Stream<Stats> get selectedStatObservable => _selectedStatQueue.stream;
+  StatsBloc(DataSourceRepository repository) : super(repository) {
+    addController(_statList);
+    addController(_selected);
+  }
 
   void listStats() async {
     var _stats = await repository.getAllLocalStats();
-    addEvent(OnDataEvent(_stats));
 
     final format = DateFormat("yyyyMMdd");
     final today = DateTime.now();
@@ -30,8 +33,9 @@ class StatsBloc extends BaseBloc<StatsEvent> {
         _stats.removeWhere((z) => z.date == newZone.date);
         _stats.add(newZone);
       }
-      addEvent(OnDataEvent(_stats));
-      _selectedStatQueue.sink.add(_stats.last);
+
+      _statList.sink.add(_stats);
+      _selected.sink.add(_stats.last);
 
       if (currentDay.day == today.day && currentDay.month == today.month) {
         break;
@@ -41,15 +45,18 @@ class StatsBloc extends BaseBloc<StatsEvent> {
     }
   }
 
-  void selectDate(DateTime date, List<Stats> stats) {
-    var _selectedStat = stats
-        .firstWhere((s) => s.date == DateFormat("yyyy-MM-dd").format(date));
-    _selectedStatQueue.sink.add(_selectedStat);
+  void selectDate(Stats selectedStat) {
+    _updateSelection(selectedStat);
   }
 
-  @override
-  void dispose() {
-    _selectedStatQueue.close();
-    super.dispose();
+  // -----------------
+
+  void _updateChart(List<Stats> _stats) {
+    _statList.sink.add(_stats);
+    _updateSelection(_stats.last);
+  }
+
+  void _updateSelection(Stats _stat) {
+    _selected.sink.add(_stat);
   }
 }

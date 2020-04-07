@@ -3,21 +3,20 @@ import 'dart:async';
 import 'package:covid19/data/source/data_source_repository.dart';
 import 'package:flutter/foundation.dart';
 
-class BaseBloc<E> {
+class BaseBloc {
   @protected
   final DataSourceRepository repository;
 
   BaseBloc(this.repository);
 
-  final _eventQueue = StreamController<E>();
-  Stream<E> get eventObservable => _eventQueue.stream;
+  final List<StreamController> _controllers = [];
 
   @protected
-  void addEvent(E event) {
-    _eventQueue.sink.add(event);
+  StreamController addController(StreamController controller) {
+    _controllers.add(controller);
   }
 
   void dispose() {
-    _eventQueue.close();
+    _controllers.forEach((c) => c.close());
   }
 }

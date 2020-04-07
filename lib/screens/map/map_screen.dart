@@ -1,6 +1,5 @@
 import 'package:covid19/data/source/data_source_repository.dart';
 import 'package:covid19/screens/base/base_state.dart';
-import 'package:covid19/screens/map/map_events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,9 +14,9 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends BaseState<MapScreen, MapBloc> {
+  MapController _mapController;
   List<CircleMarker> _dangerZonesCircles;
   LatLng _myLocation = null;
-  MapController _mapController;
 
   @override
   void initState() {
@@ -28,23 +27,19 @@ class _MapScreenState extends BaseState<MapScreen, MapBloc> {
   @override
   void setupBloc() async {
     bloc = MapBloc(DataSourceRepository());
-    bloc.eventObservable.listen((event) {
+    bloc.zoneListObservable.listen((dangerZones) {
       setState(() {
-        if (event is OnDataEvent) {
-          isLoading = false;
-          _dangerZonesCircles = event.dangerZones
-              .map(
-                (zone) => CircleMarker(
-                    point: LatLng(zone.latitude, zone.longitude),
-                    color: Colors.amber.withAlpha(70),
-                    borderStrokeWidth: 0,
-                    useRadiusInMeter: true,
-                    radius: 100),
-              )
-              .toList();
-        } else if (event is OnErrorEvent) {
-          isLoading = false;
-        }
+        isLoading = false;
+        _dangerZonesCircles = dangerZones
+            .map(
+              (zone) => CircleMarker(
+                  point: LatLng(zone.latitude, zone.longitude),
+                  color: Colors.amber.withAlpha(70),
+                  borderStrokeWidth: 0,
+                  useRadiusInMeter: true,
+                  radius: 100),
+            )
+            .toList();
       });
     });
 
@@ -143,7 +138,8 @@ class _MapScreenState extends BaseState<MapScreen, MapBloc> {
   }
 
   void _showCurrentLocation() async {
-    var result = await PermissionHandler().requestPermissions([PermissionGroup.location]);
+    var result = await PermissionHandler()
+        .requestPermissions([PermissionGroup.location]);
     var status = result[PermissionGroup.location];
     if (status == PermissionStatus.granted) {
       var position = await Geolocator()
@@ -153,8 +149,7 @@ class _MapScreenState extends BaseState<MapScreen, MapBloc> {
       });
       _mapController.move(_myLocation, 17);
       print("ASCT: " + position.toString());
-    
-    }else if (status == PermissionStatus.denied) {
+    } else if (status == PermissionStatus.denied) {
       PermissionHandler().openAppSettings();
     }
   }
