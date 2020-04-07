@@ -1,16 +1,21 @@
-# covid19
+# Covid19
 
 A new Flutter project.
 
-## Getting Started
+## Screenshots
 
-This project is a starting point for a Flutter application.
+| Android Chart | Android Map |
+| --- | --- |
+| <img src="images/android_chart.png" height="400"> | <img src="images/android_map.png" height="400"> |
 
-A few resources to get you started if this is your first Flutter project:
+| iOS Chart | iOS Map |
+| --- | --- |
+| <img src="images/ios_chart.png" height="400"> | <img src="images/ios_map.png" height="400"> |
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## What could you found here
+
+* An attempt to implement bloc pattern (still not quite get it)
+* Usage of `sqflite` package to handle local database
+* Usage of `http` package to make http request
+* Usage of `charts_flutter` package to draw some cool chats
